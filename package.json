@@ -1,0 +1,12 @@
+{
+  "name": "com.seven.lunar-render-pipeline",
+  "description": "A custom render pipeline for Unity.",
+  "version": "0.0.1",
+  "unity": "2022.3",
+  "displayName": "Lunar RP",
+  "dependencies": {
+    "com.unity.mathematics": "1.2.1",
+    "com.unity.burst": "1.8.4",
+    "com.unity.render-pipelines.core": "14.0.8"
+  }
+}

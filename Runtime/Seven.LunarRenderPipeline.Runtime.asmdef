@@ -1,0 +1,30 @@
+{
+    "name": "Seven.LunarRenderPipeline.Runtime",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.core",
+            "expression": "",
+            "define": ""
+        },
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "",
+            "define": ""
+        },
+        {
+            "name": "com.unity.postprocessing",
+            "expression": "",
+            "define": ""
+        }
+    ],
+    "noEngineReferences": false
+}
