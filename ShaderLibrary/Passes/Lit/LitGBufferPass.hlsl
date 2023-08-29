@@ -18,8 +18,8 @@
 #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
 
 #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
-#pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
-#pragma shader_feature_local_fragment _SPECULAR_SETUP
+// #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+// #pragma shader_feature_local_fragment _SPECULAR_SETUP
 #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 
 // -------------------------------------

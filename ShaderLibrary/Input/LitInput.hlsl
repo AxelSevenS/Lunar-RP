@@ -24,9 +24,9 @@ struct VertexOutput {
     float2 uv : TEXCOORD0;
 
     DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 8);
-#ifdef DYNAMICLIGHTMAP_ON
-    float2 dynamicLightmapUV : TEXCOORD9; // Dynamic lightmap UVs
-#endif
+    #ifdef DYNAMICLIGHTMAP_ON
+        float2 dynamicLightmapUV : TEXCOORD9; // Dynamic lightmap UVs
+    #endif
     UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };

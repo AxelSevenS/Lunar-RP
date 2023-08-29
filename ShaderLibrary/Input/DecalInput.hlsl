@@ -10,4 +10,5 @@ struct DecalSurfaceData {
     half smoothness;
     half MAOSAlpha;
 };
+
 #endif // LUNAR_DECAL_INPUT_INCLUDED

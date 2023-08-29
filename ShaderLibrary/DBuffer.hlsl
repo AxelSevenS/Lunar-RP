@@ -142,14 +142,14 @@ void ApplyDecal(
 #endif
 
 #if defined(_DBUFFER_MRT3)
-    #ifdef _SPECULAR_SETUP
+    // #ifdef _SPECULAR_SETUP
         if (decalSurfaceData.MAOSAlpha.x < 1.0) {
             half3 decalSpecularColor = ComputeFresnel0((decalSurfaceData.baseColor.w < 1.0) ? decalSurfaceData.baseColor.xyz : half3(1.0, 1.0, 1.0), decalSurfaceData.metallic, DEFAULT_SPECULAR_VALUE);
             specularColor = specularColor * decalSurfaceData.MAOSAlpha + decalSpecularColor * (1.0f - decalSurfaceData.MAOSAlpha);
         }
     // #else
     //     metallic = metallic * decalSurfaceData.MAOSAlpha + decalSurfaceData.metallic;
-    #endif
+    // #endif
 
     occlusion = occlusion * decalSurfaceData.MAOSAlpha + decalSurfaceData.occlusion;
 

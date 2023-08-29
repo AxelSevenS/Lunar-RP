@@ -8,7 +8,8 @@ using Unity.Collections;
 
 
 namespace Seven.LunarRenderPipeline {
-/// <summary>
+    
+    /// <summary>
     /// Struct that flattens several rendering settings used to render a camera stack.
     /// URP builds the <c>RenderingData</c> settings from several places, including the pipeline asset, camera and light settings.
     /// The settings also might vary on different platforms and depending on if Adaptive Performance is used.
@@ -29,6 +30,8 @@ namespace Seven.LunarRenderPipeline {
         /// <see cref="CameraData"/>
         /// </summary>
         public CameraData cameraData;
+
+        public LunarRenderer renderer;
 
         /// <summary>
         /// Holds the main light index from the <c>VisibleLight</c> list returned by culling. If there's no main light in the scene, <c>mainLightIndex</c> is set to -1.
@@ -142,6 +145,8 @@ namespace Seven.LunarRenderPipeline {
         /// </summary>
         public bool supportsDynamicBatching;
 
+        public bool supportsInstancing;
+
         // /// <summary>
         // /// Holds per-object data that are requested when drawing
         // /// <see cref="PerObjectData"/>
@@ -161,13 +166,13 @@ namespace Seven.LunarRenderPipeline {
         /// </summary>
         public float maxShadowDistance;
 
-        /// <summary>
-        /// True if post-processing effect is enabled while rendering the camera stack.
-        /// </summary>
-        public bool postProcessingEnabled;
+        // /// <summary>
+        // /// True if post-processing effect is enabled while rendering the camera stack.
+        // /// </summary>
+        // public bool postProcessingEnabled;
 
 
-        public static RenderingData GetRenderingData(LunarRenderPipelineAsset settings, ref CameraData cameraData, ref CullingResults cullingResults, bool anyPostProcessingEnabled, CommandBuffer cmd) {
+        public static RenderingData GetRenderingData(LunarRenderPipelineAsset asset, ref CameraData cameraData, ref CullingResults cullingResults, bool anyPostProcessingEnabled, CommandBuffer cmd) {
             RenderingData renderingData = new RenderingData();
             // using var profScope = new ProfilingScope(null, Profiling.Pipeline.initializeRenderingData);
 
@@ -198,8 +203,7 @@ namespace Seven.LunarRenderPipeline {
                         Light light = vl.light;
 
                         // UniversalRP doesn't support additional directional light shadows yet
-                        if ((vl.lightType == LightType.Spot || vl.lightType == LightType.Point) && light != null && light.shadows != LightShadows.None)
-                        {
+                        if ((vl.lightType == LightType.Spot || vl.lightType == LightType.Point) && light != null && light.shadows != LightShadows.None) {
                             additionalLightsCastShadows = true;
                             break;
                         }
@@ -213,31 +217,31 @@ namespace Seven.LunarRenderPipeline {
             // Light Settings
             renderingData.mainLightIndex = mainLightIndex;
 
-            if (true/* settings.additionalLightsRenderingMode != LightRenderingMode.Disabled */) {
+            // if (asset.additionalLightsRenderingMode != LightRenderingMode.Disabled) {
                 int additionalLightsCount = (mainLightIndex != -1) ? visibleLights.Length - 1 : visibleLights.Length;
                 renderingData.additionalLightsCount = Math.Min(additionalLightsCount, LunarLightManager.maxVisibleAdditionalLights);
-                renderingData.maxPerObjectAdditionalLightsCount = Math.Min(int.MaxValue/* settings.maxAdditionalLightsCount */, LunarLightManager.maxPerObjectLights);
-            } else {
-                renderingData.additionalLightsCount = 0;
-                renderingData.maxPerObjectAdditionalLightsCount = 0;
-            }
+                renderingData.maxPerObjectAdditionalLightsCount = Math.Min(int.MaxValue/* asset.maxAdditionalLightsCount */, LunarLightManager.maxPerObjectLights);
+            // } else {
+            //     renderingData.additionalLightsCount = 0;
+            //     renderingData.maxPerObjectAdditionalLightsCount = 0;
+            // }
 
-            renderingData.supportsAdditionalLights = true/* settings.additionalLightsRenderingMode != LightRenderingMode.Disabled */;
-            // renderingData.shadeAdditionalLightsPerVertex = false/* settings.additionalLightsRenderingMode == LightRenderingMode.PerVertex */;
-            // renderingData.visibleLights = visibleLights;
-            // renderingData.supportsMixedLighting = settings.supportsMixedLighting;
-            // renderingData.reflectionProbeBlending = settings.reflectionProbeBlending;
-            // renderingData.reflectionProbeBoxProjection = settings.reflectionProbeBoxProjection;
-            renderingData.supportsLightLayers = SystemInfo.graphicsDeviceType != GraphicsDeviceType.OpenGLES2 /* && settings.useRenderingLayers */;
+            renderingData.supportsAdditionalLights = true/* asset.additionalLightsRenderingMode != LightRenderingMode.Disabled */;
+            // renderingData.shadeAdditionalLightsPerVertex = false/* asset.additionalLightsRenderingMode == LightRenderingMode.PerVertex */;
+            // renderingData.supportsMixedLighting = asset.supportsMixedLighting;
+            // renderingData.reflectionProbeBlending = asset.reflectionProbeBlending;
+            // renderingData.reflectionProbeBoxProjection = asset.reflectionProbeBoxProjection;
+            renderingData.supportsLightLayers = SystemInfo.graphicsDeviceType != GraphicsDeviceType.OpenGLES2 /* && asset.useRenderingLayers */;
 
 
-            // InitializeLightData(settings, visibleLights, mainLightIndex, out renderingData.lightData);
-            // InitializeShadowData(settings, visibleLights, mainLightCastShadows, additionalLightsCastShadows && !renderingData.lightData.shadeAdditionalLightsPerVertex, out renderingData.shadowData);
-            // InitializePostProcessingData(settings, out renderingData.postProcessingData);
-            renderingData.supportsDynamicBatching = settings.useDynamicBatching;
+            // InitializeLightData(asset, visibleLights, mainLightIndex, out renderingData.lightData);
+            // InitializeShadowData(asset, visibleLights, mainLightCastShadows, additionalLightsCastShadows && !renderingData.lightData.shadeAdditionalLightsPerVertex, out renderingData.shadowData);
+            // InitializePostProcessingData(asset, out renderingData.postProcessingData);
+            renderingData.supportsDynamicBatching = asset.useSRPBatcher;
+            renderingData.supportsInstancing = asset.useInstancing;
             // var isForwardPlus = cameraData.renderer is UniversalRenderer { renderingModeActual: RenderingMode.ForwardPlus };
             // renderingData.perObjectData = GetPerObjectLightFlags(renderingData.lightData.additionalLightsCount, isForwardPlus);
-            renderingData.postProcessingEnabled = anyPostProcessingEnabled;
+            // renderingData.postProcessingEnabled = anyPostProcessingEnabled;
             renderingData.commandBuffer = cmd;
 
             // CheckAndApplyDebugSettings(ref renderingData);
