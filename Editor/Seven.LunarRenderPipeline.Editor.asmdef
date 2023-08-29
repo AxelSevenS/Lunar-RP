@@ -1,0 +1,19 @@
+{
+    "name": "Seven.LunarRenderPipeline.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:fea5caa86d3e95f4bbea9136dd14478b",
+        "GUID:3eae0364be2026648bf74846acb8a731"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

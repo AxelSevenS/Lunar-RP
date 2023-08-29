@@ -7,24 +7,36 @@ namespace Seven.LunarRenderPipeline {
     [CreateAssetMenu(menuName = "Rendering/Lunar Render Pipeline")]
     public class LunarRenderPipelineAsset : RenderPipelineAsset  {
 
+        [SerializeField, HideInInspector] internal bool hasBeenInitialized = false;
+
         [SerializeField] internal bool useSRPBatcher = true;
         [SerializeField] internal bool useInstancing = true;
         [SerializeField] internal bool enableLODCrossFade = true;
         [SerializeField] internal bool supportsHDR = true;
 
-        [SerializeField] internal List<LunarRendererFeature> rendererFeatures = null;
+        [SerializeField, HideInInspector] internal List<LunarRendererFeature> rendererFeatures = new();
+        [SerializeField, HideInInspector] internal List<long> rendererFeaturesGUIDs = new();
         protected override RenderPipeline CreatePipeline() {
             return new LunarRenderPipeline(this);
         }
 
+        private void ResetList() {
+            // if ( rendererFeatures == null /* || rendererFeatures.Count == 0  */) {
+            //     rendererFeatures = new List<LunarRendererFeature>() {
+            //         CreateInstance<OpaqueRendererFeature>(),
+            //         CreateInstance<SkyboxRendererFeature>(),
+            //         CreateInstance<TransparentRendererFeature>(),
+            //     };
+            // }
+        }
+
         private void OnEnable() {
-            if ( rendererFeatures == null) {
-                rendererFeatures = new List<LunarRendererFeature>() {
-                    CreateInstance<OpaqueRendererFeature>(),
-                    CreateInstance<SkyboxRendererFeature>(),
-                    CreateInstance<TransparentRendererFeature>(),
-                };
-            }
+            ResetList();
+        }
+
+        protected override void OnValidate() {
+            base.OnValidate();
+            ResetList();
         }
     }
 }
