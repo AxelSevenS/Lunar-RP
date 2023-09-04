@@ -5,8 +5,8 @@
 #include "Packages/com.seven.lunar-render-pipeline/ShaderLibrary/AmbientOcclusion.hlsl"
 #include "Packages/com.seven.lunar-render-pipeline/ShaderLibrary/Input.hlsl"
 #include "Packages/com.seven.lunar-render-pipeline/ShaderLibrary/Shadows.hlsl"
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LightCookie/LightCookie.hlsl"
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Clustering.hlsl"
+// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LightCookie/LightCookie.hlsl"
+// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Clustering.hlsl"
 
 // Abstraction over Light shading data.
 struct Light {

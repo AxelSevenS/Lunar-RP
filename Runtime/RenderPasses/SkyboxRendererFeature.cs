@@ -1,4 +1,11 @@
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
+
+    /// <summary>
+    ///     <para>
+    ///         Injects the <c>SkyboxRenderPass</c> into the render pipeline.
+    ///     </para>
+    /// </summary>
+    [DisallowMultipleRendererFeature]
     public sealed class SkyboxRendererFeature : LunarRendererFeature {
 
         private SkyboxRenderPass _skyboxRenderPass;

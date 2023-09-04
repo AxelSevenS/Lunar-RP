@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.Rendering;
 
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
 
     [CustomEditor(typeof(LunarRenderPipelineAsset), true)]
     public class LunarRenderPipelineAssetEditor : Editor {
@@ -45,8 +45,11 @@ namespace Seven.LunarRenderPipeline {
             soRendererFeaturesGUIDs = serializedObject.FindProperty(nameof(LunarRenderPipelineAsset.rendererFeaturesGUIDs)/* "rendererFeatures" */);
 
             SerializedProperty soHasBeenInitialized = serializedObject.FindProperty(nameof(LunarRenderPipelineAsset.hasBeenInitialized)/* "hasBeenInitialized" */);
-            list = new RendererFeatureList(this, soRendererFeatures, soRendererFeaturesGUIDs, soHasBeenInitialized.boolValue);
+            list = new RendererFeatureList(this, soRendererFeatures, soRendererFeaturesGUIDs);
             if ( !soHasBeenInitialized.boolValue ) {
+                list.AddInstance(typeof(OpaqueRendererFeature));
+                list.AddInstance(typeof(SkyboxRendererFeature));
+                list.AddInstance(typeof(TransparentRendererFeature));
                 soHasBeenInitialized.boolValue = true;
                 serializedObject.ApplyModifiedProperties();
             }

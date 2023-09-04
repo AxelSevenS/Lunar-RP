@@ -1,9 +1,11 @@
 {
     "name": "Seven.LunarRenderPipeline.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "LunarRenderPipeline",
     "references": [
         "GUID:fea5caa86d3e95f4bbea9136dd14478b",
-        "GUID:3eae0364be2026648bf74846acb8a731"
+        "GUID:3eae0364be2026648bf74846acb8a731",
+        "GUID:df380645f10b7bc4b97d4f5eb6303d95",
+        "GUID:697c314a60605014b95f130f815bb437"
     ],
     "includePlatforms": [
         "Editor"

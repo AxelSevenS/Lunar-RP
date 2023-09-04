@@ -1,6 +1,6 @@
 {
     "name": "Seven.LunarRenderPipeline.Runtime",
-    "rootNamespace": "",
+    "rootNamespace": "LunarRenderPipeline",
     "references": [
         "GUID:df380645f10b7bc4b97d4f5eb6303d95",
         "GUID:d60799ab2a985554ea1a39cd38695018"

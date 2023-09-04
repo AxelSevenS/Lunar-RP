@@ -5,9 +5,10 @@ using UnityEngine;
 
 using UnityEditor;
 using UnityEditor.Rendering;
-// using UnityEngine.Rendering.Universal;
 
-namespace Seven.LunarRenderPipeline {
+
+namespace LunarRenderPipeline {
+
     class LunarRendererFeatureProvider : FilterWindow.IProvider {
         class FeatureElement : FilterWindow.Element {
             public Type type;
@@ -23,12 +24,7 @@ namespace Seven.LunarRenderPipeline {
         public void CreateComponentTree(List<FilterWindow.Element> tree) {
             tree.Add(new FilterWindow.GroupElement(0, "Renderer Features"));
             var types = TypeCache.GetTypesDerivedFrom<LunarRendererFeature>();
-            var data = _list.editor.target as LunarRenderPipelineAsset;
-            foreach (var type in types) {
-                // if (data.DuplicateFeatureCheck(type)) {
-                //     continue;
-                // }
-
+            foreach (Type type in types) {
                 string path = GetMenuNameFromType(type);
                 tree.Add(new FeatureElement {
                     content = new GUIContent(path),
@@ -40,7 +36,7 @@ namespace Seven.LunarRenderPipeline {
 
         public bool GoToChild(FilterWindow.Element element, bool addIfComponent) {
             if (element is FeatureElement featureElement) {
-                _list.AddFeature(featureElement.type.Name);
+                _list.AddInstance(featureElement.type);
                 return true;
             }
 
@@ -48,10 +44,7 @@ namespace Seven.LunarRenderPipeline {
         }
 
         string GetMenuNameFromType(Type type) {
-            string path;
-            // if (!m_Editor.GetCustomTitle(type, out path)) {
-                path = ObjectNames.NicifyVariableName(type.Name);
-            // }
+            string path = ObjectNames.NicifyVariableName(type.Name.Replace("RendererFeature", ""));
 
             if (type.Namespace != null) {
                 if (type.Namespace.Contains("Experimental"))

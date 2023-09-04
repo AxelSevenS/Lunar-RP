@@ -2,22 +2,31 @@ using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
 
 
 
     public abstract class LunarRenderPass {
 
+        internal RTHandle _colorTargetHandle;
+        internal RTHandle _depthTargetHandle;
+
         public abstract Dependency dependencies { get; }
         public abstract Event renderPassEvent { get; }
+
+        protected void ConfigureTarget(RTHandle colorTarget, RTHandle depthTarget) {
+            _colorTargetHandle = colorTarget;
+            _depthTargetHandle = depthTarget;
+        }
+
+        public virtual void OnCameraPreCull(LunarRenderer renderer, in CameraData cameraData) { }
 
         public abstract void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor);
 
         public abstract void Execute(ScriptableRenderContext context, ref RenderingData renderingData);
 
         public virtual void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData) { }
-
-        public virtual void FrameCleanup(CommandBuffer cmd) { }
+        public virtual void OnCameraCleanup(CommandBuffer cmd) { }
         
     
         /// <summary>

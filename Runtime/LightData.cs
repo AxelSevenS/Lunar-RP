@@ -3,7 +3,7 @@ using UnityEngine.Rendering;
 using Unity.Collections;
 
 
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
 
     /// <summary>
     /// Container struct for various data used for lights in URP.
@@ -41,14 +41,14 @@ namespace Seven.LunarRenderPipeline {
         public uint layerMask;
 
         public static LightData GetLightData(ref VisibleLight visibleLight) {
-            LightData data = new LightData();
-
-            // Default Values
-            data.position = new Vector4(0, 0, 1f, 0);
-            data.color = Color.black;
-            data.attenuation = new Vector4(0, 1f, 0, 1f);
-            data.spotDirection = new Vector4(0, 0, 1f, 0);
-            data.occlusionProbeChannels = Vector4.zero;
+            LightData data = new() {
+                // Default Values
+                position = new Vector4(0, 0, 1f, 0),
+                color = Color.black,
+                attenuation = new Vector4(0, 1f, 0, 1f),
+                spotDirection = new Vector4(0, 0, 1f, 0),
+                occlusionProbeChannels = Vector4.zero
+            };
 
 
             Light light = visibleLight.light;
@@ -130,12 +130,13 @@ namespace Seven.LunarRenderPipeline {
         }
         public static LightData GetLightData(NativeArray<VisibleLight> lights, int lightIndex) {
             // Default Values
-            LightData data = new LightData();
-            data.position = new Vector4(0, 0, 1f, 0);
-            data.color = Color.black;
-            data.attenuation = new Vector4(0, 1f, 0, 0);
-            data.spotDirection = new Vector4(0, 0, 1f, 0);
-            data.occlusionProbeChannels = Vector4.zero;
+            LightData data = new() {
+                position = new Vector4(0, 0, 1f, 0),
+                color = Color.black,
+                attenuation = new Vector4(0, 1f, 0, 0),
+                spotDirection = new Vector4(0, 0, 1f, 0),
+                occlusionProbeChannels = Vector4.zero
+            };
 
             // When no lights are visible, main light will be set to -1.
             // In this case we initialize it to default values and return

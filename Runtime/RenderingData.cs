@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 using Unity.Collections;
 
 
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
     
     /// <summary>
     /// Struct that flattens several rendering settings used to render a camera stack.
@@ -172,8 +172,10 @@ namespace Seven.LunarRenderPipeline {
         // public bool postProcessingEnabled;
 
 
-        public static RenderingData GetRenderingData(LunarRenderPipelineAsset asset, ref CameraData cameraData, ref CullingResults cullingResults, bool anyPostProcessingEnabled, CommandBuffer cmd) {
-            RenderingData renderingData = new RenderingData();
+        public static RenderingData GetRenderingData(LunarRenderPipelineAsset asset, LunarRenderer renderer, ref CameraData cameraData, ref CullingResults cullingResults, bool anyPostProcessingEnabled, CommandBuffer cmd) {
+            RenderingData renderingData = new() {
+                renderer = renderer
+            };
             // using var profScope = new ProfilingScope(null, Profiling.Pipeline.initializeRenderingData);
 
             NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
@@ -189,8 +191,7 @@ namespace Seven.LunarRenderPipeline {
             renderingData.maxShadowDistance = (anyShadowsEnabled && renderingData.maxShadowDistance >= camera.nearClipPlane) ? renderingData.maxShadowDistance : 0.0f;
 
             if (renderingData.maxShadowDistance > 0.0f) {
-                mainLightCastShadows = (mainLightIndex != -1 && visibleLights[mainLightIndex].light != null &&
-                    visibleLights[mainLightIndex].light.shadows != LightShadows.None);
+                mainLightCastShadows = (mainLightIndex != -1 && visibleLights[mainLightIndex].light != null && visibleLights[mainLightIndex].light.shadows != LightShadows.None);
 
                 // If additional lights are shaded per-vertex they cannot cast shadows
                 // if (settings.additionalLightsRenderingMode == LightRenderingMode.PerPixel)

@@ -1,8 +1,7 @@
 #ifndef LUNAR_LIGHTING_INCLUDED
 #define LUNAR_LIGHTING_INCLUDED
 
-// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/BRDF.hlsl"
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/Debugging3D.hlsl"
+// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/Debugging3D.hlsl"
 #include "Packages/com.seven.lunar-render-pipeline/ShaderLibrary/GlobalIllumination.hlsl"
 #include "Packages/com.seven.lunar-render-pipeline/ShaderLibrary/RealtimeLights.hlsl"
 #include "Packages/com.seven.lunar-render-pipeline/ShaderLibrary/AmbientOcclusion.hlsl"
@@ -41,21 +40,21 @@ half3 CalculateLightingColor(LightingData lightingData, half3 albedo) {
 
     lightingColor = _SubtractiveShadowColor * albedo;
 
-    if (IsOnlyAOLightingFeatureEnabled()) {
-        return lightingData.giColor; // Contains white + AO
-    }
+    // if (IsOnlyAOLightingFeatureEnabled()) {
+        // return lightingData.giColor; // Contains white + AO
+    // }
 
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_GLOBAL_ILLUMINATION)) {
+    // if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_GLOBAL_ILLUMINATION)) {
         lightingColor += lightingData.giColor;
-    }
+    // }
 
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_MAIN_LIGHT)) {
+    // if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_MAIN_LIGHT)) {
         lightingColor += lightingData.mainLightColor;
-    }
+    // }
 
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_ADDITIONAL_LIGHTS)) {
+    // if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_ADDITIONAL_LIGHTS)) {
         lightingColor += lightingData.additionalLightsColor;
-    }
+    // }
 
     // if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_VERTEX_LIGHTING)) {
     //     lightingColor += lightingData.vertexLightingColor;
@@ -63,9 +62,9 @@ half3 CalculateLightingColor(LightingData lightingData, half3 albedo) {
 
     lightingColor *= albedo;
 
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_EMISSION)) {
+    // if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_EMISSION)) {
         lightingColor += lightingData.emissionColor;
-    }
+    // }
 
     return lightingColor;
 }
@@ -212,9 +211,9 @@ half4 LunarFragmentUnlit(InputData inputData, SurfaceData surfaceData) {
     AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
     LightingData lightingData = CreateLightingData(inputData, surfaceData);
 
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_AMBIENT_OCCLUSION)) {
+    // if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_AMBIENT_OCCLUSION)) {
         lightingData.giColor *= aoFactor.indirectAmbientOcclusion;
-    }
+    // }
 
     return CalculateFinalColor(lightingData, surfaceData.albedo, surfaceData.alpha, inputData.fogCoord);
 }

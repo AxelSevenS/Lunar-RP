@@ -1,8 +1,13 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
 
+    /// <summary>
+    ///     <para>
+    ///         Renders all transparent objects in the scene.
+    ///     </para>
+    /// </summary>
     public sealed class TransparentRenderPass : LunarRenderPass {
 
         private ProfilingSampler _transparentSampler;
@@ -16,24 +21,22 @@ namespace Seven.LunarRenderPipeline {
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData) {
             using (new ProfilingScope(renderingData.commandBuffer, _transparentSampler)) {
-                SortingSettings sortingSettings = new(renderingData.cameraData.camera);
+                
+                SortingSettings sortingSettings = new(renderingData.cameraData.camera) {
+                    criteria = SortingCriteria.CommonTransparent
+                };
+
                 DrawingSettings drawingSettings = new(LunarRenderPipeline.forwardLightmodeId, sortingSettings) {
                     enableDynamicBatching = renderingData.supportsDynamicBatching,
                     enableInstancing = renderingData.supportsInstancing
                 };
 
                 FilteringSettings filteringSettings = FilteringSettings.defaultValue;
+                filteringSettings.renderQueueRange = RenderQueueRange.transparent;
             
                 // Render opaque objects
-                sortingSettings.criteria = SortingCriteria.CommonTransparent;
-                filteringSettings.renderQueueRange = RenderQueueRange.transparent;
                 context.DrawRenderers(renderingData.cullingResults, ref drawingSettings, ref filteringSettings);
             }
-        }
-
-        public override void FrameCleanup(CommandBuffer cmd) {
-            // cmd.ReleaseTemporaryRT(LunarRenderPipeline.cameraColorTextureId);
-            // cmd.ReleaseTemporaryRT(LunarRenderPipeline.cameraDepthTextureId);
         }
 
     }

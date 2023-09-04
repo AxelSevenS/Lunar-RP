@@ -1,4 +1,4 @@
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
     /// <summary>
     /// Contains structs used for shader input.
     /// </summary>

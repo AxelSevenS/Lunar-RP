@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 // using UnityEngine.Scripting.APIUpdating;
 
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
     /// <summary>
     /// You can add a <c>LunarRendererFeature</c> to the <c>LunarRenderer</c>. Use this scriptable renderer feature to inject render passes into the renderer.
     /// </summary>

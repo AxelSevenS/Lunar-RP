@@ -1,4 +1,11 @@
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
+
+    /// <summary>
+    ///     <para>
+    ///         Injects the <c>OpaqueRenderPass</c> into the render pipeline.
+    ///     </para>
+    /// </summary>
+    [DisallowMultipleRendererFeature]
     public sealed class OpaqueRendererFeature : LunarRendererFeature {
 
         private OpaqueRenderPass _opaqueRenderPass;

@@ -12,7 +12,7 @@ using UnityEditor;
 #endif
 
 
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
 
     public class LunarRenderPipeline : RenderPipeline {
 
@@ -22,21 +22,27 @@ namespace Seven.LunarRenderPipeline {
         public static readonly ShaderTagId forwardLightmodeId = new(name: "LunarForward");
         public static readonly ShaderTagId defferedLightmodeId = new(name: "LunarGBuffer");
 
-        public static readonly ProfilingSampler drawGizmosProfilingSample = new($"{PIPELINE_NAME}.DrawGizmos");
-        public static readonly ProfilingSampler setupCullingParametersProfilingSample = new($"{PIPELINE_NAME}.SetupCullingParameters");
+        public static readonly ProfilingSampler getMainLightIndexProfilingSampler = new($"{PIPELINE_NAME}.GetMainLightIndex");
+        public static readonly ProfilingSampler beginFrameRenderingProfilingSampler = new($"{PIPELINE_NAME}.BeginFrameRender");
+        public static readonly ProfilingSampler setupCullingParametersProfilingSampler = new($"{PIPELINE_NAME}.SetupCullingParameters");
+        public static readonly ProfilingSampler renderProfilingSampler = new($"{PIPELINE_NAME}.Render");
         public static readonly ProfilingSampler cameraSetupProfilingSampler = new($"{PIPELINE_NAME}.CameraSetup");
         public static readonly ProfilingSampler configureProfilingSampler = new($"{PIPELINE_NAME}.Configure");
-        public static readonly ProfilingSampler beginFrameRenderingProfilingSampler = new($"{PIPELINE_NAME}.BeginFrameRender");
+        public static readonly ProfilingSampler timeVariablesProfilingSampler = new($"{PIPELINE_NAME}.TimeVariables");
+        public static readonly ProfilingSampler drawGizmosProfilingSampler = new($"{PIPELINE_NAME}.DrawGizmos");
+        public static readonly ProfilingSampler executeRenderPassesProfilingSampler = new($"{PIPELINE_NAME}.ExecutePasses");
+        public static readonly ProfilingSampler cameraFinishProfilingSampler = new($"{PIPELINE_NAME}.CameraFinish");
         public static readonly ProfilingSampler endFrameRenderingProfilingSampler = new($"{PIPELINE_NAME}.EndFrameRender");
-        public static readonly ProfilingSampler renderProfilingSampler = new($"{PIPELINE_NAME}.Render");
-        public static readonly ProfilingSampler getMainLightIndexProfilingSampler = new($"{PIPELINE_NAME}.GetMainLightIndex");
+
+
+        public static readonly RTHandle _cameraTargetHandle = RTHandles.Alloc(BuiltinRenderTextureType.CurrentActive);
+
 
         private LunarRenderer _renderer = null;
-        public static readonly LunarLightManager lightManager = new LunarLightManager();
 
         private readonly LunarRenderPipelineAsset _asset;
 
-        private readonly Material errorMaterial = CoreUtils.CreateEngineMaterial("Hidden/InternalErrorShader");
+        // private readonly Material errorMaterial = CoreUtils.CreateEngineMaterial("Hidden/InternalErrorShader");
 
 
 
@@ -46,26 +52,30 @@ namespace Seven.LunarRenderPipeline {
 
             Shader.globalRenderPipeline = PIPELINE_NAME;
 
-            #if UNITY_EDITOR
-                SupportedRenderingFeatures.active = new SupportedRenderingFeatures() {
-                    reflectionProbeModes = SupportedRenderingFeatures.ReflectionProbeModes.None,
-                    defaultMixedLightingModes = SupportedRenderingFeatures.LightmapMixedBakeModes.Subtractive,
-                    mixedLightingModes = SupportedRenderingFeatures.LightmapMixedBakeModes.Subtractive | SupportedRenderingFeatures.LightmapMixedBakeModes.IndirectOnly | SupportedRenderingFeatures.LightmapMixedBakeModes.Shadowmask,
-                    lightmapBakeTypes = LightmapBakeType.Baked | LightmapBakeType.Mixed | LightmapBakeType.Realtime,
-                    lightmapsModes = LightmapsMode.CombinedDirectional | LightmapsMode.NonDirectional,
-                    lightProbeProxyVolumes = false,
-                    motionVectors = true,
-                    receiveShadows = false,
-                    reflectionProbes = false,
-                    reflectionProbesBlendDistance = true,
-                    particleSystemInstancing = true,
-                    overridesEnableLODCrossFade = true
-                };
-                // SceneViewDrawMode.SetupDrawMode();
-            #endif
-            SupportedRenderingFeatures.active.supportsHDR = /* true */asset.supportsHDR;
+            // #if UNITY_EDITOR
+            //     SupportedRenderingFeatures.active = new SupportedRenderingFeatures() {
+            //         reflectionProbeModes = SupportedRenderingFeatures.ReflectionProbeModes.None,
+            //         defaultMixedLightingModes = SupportedRenderingFeatures.LightmapMixedBakeModes.Subtractive,
+            //         mixedLightingModes = SupportedRenderingFeatures.LightmapMixedBakeModes.Subtractive | SupportedRenderingFeatures.LightmapMixedBakeModes.IndirectOnly | SupportedRenderingFeatures.LightmapMixedBakeModes.Shadowmask,
+            //         lightmapBakeTypes = LightmapBakeType.Baked | LightmapBakeType.Mixed | LightmapBakeType.Realtime,
+            //         lightmapsModes = LightmapsMode.CombinedDirectional | LightmapsMode.NonDirectional,
+            //         lightProbeProxyVolumes = false,
+            //         motionVectors = true,
+            //         receiveShadows = true/* false */,
+            //         reflectionProbes = false,
+            //         reflectionProbesBlendDistance = true,
+            //         particleSystemInstancing = true,
+            //         overridesEnableLODCrossFade = true
+            //     };
+            //     // SceneViewDrawMode.SetupDrawMode();
+            // #endif
 
-            GraphicsSettings.useScriptableRenderPipelineBatching = /* true */asset.useSRPBatcher;
+            // Initial state of the RTHandle system.
+            // We initialize to screen width/height to avoid multiple realloc that can lead to inflated memory usage (as releasing of memory is delayed).
+            RTHandles.Initialize(Screen.width, Screen.height);
+
+            SupportedRenderingFeatures.active.supportsHDR = asset.supportsHDR;
+            GraphicsSettings.useScriptableRenderPipelineBatching = asset.useSRPBatcher;
 
             // // In QualitySettings.antiAliasing disabled state uses value 0, where in URP 1
             // int qualitySettingsMsaaSampleCount = QualitySettings.antiAliasing > 0 ? QualitySettings.antiAliasing : 1;
@@ -83,7 +93,7 @@ namespace Seven.LunarRenderPipeline {
             // XRSystem.SetRenderScale(asset.renderScale);
 
             // Lightmapping.SetDelegate(lightsDelegate);
-            CameraCaptureBridge.enabled = true;
+            // CameraCaptureBridge.enabled = true;
 
             // RenderingUtils.ClearSystemInfoCache();
 
@@ -94,7 +104,7 @@ namespace Seven.LunarRenderPipeline {
             DebugManager.instance.RefreshEditor();
             // m_DebugDisplaySettingsUI.RegisterDebug(UniversalRenderPipelineDebugDisplaySettings.Instance);
 
-            QualitySettings.enableLODCrossFade = /* true */asset.enableLODCrossFade;
+            QualitySettings.enableLODCrossFade = asset.enableLODCrossFade;
         }
 
         protected override void Dispose(bool disposing) {
@@ -108,7 +118,7 @@ namespace Seven.LunarRenderPipeline {
             // #endif
 
             // Lightmapping.ResetDelegate();
-            CameraCaptureBridge.enabled = false;
+            // CameraCaptureBridge.enabled = false;
 
             // m_DebugDisplaySettingsUI.UnregisterDebug(UniversalRenderPipelineDebugDisplaySettings.Instance);
 
@@ -117,14 +127,10 @@ namespace Seven.LunarRenderPipeline {
 
 
         private void RenderCamera(ScriptableRenderContext context, Camera camera) {
-            context.SetupCameraProperties(camera);
-
-            if ( !camera.TryGetCullingParameters(out ScriptableCullingParameters cullingParameters) ) {
-                return;
-            }
-            CullingResults cullingResults = context.Cull(ref cullingParameters);
-
             CommandBuffer cmd = CommandBufferPool.Get("Render Loop");
+
+
+            context.SetupCameraProperties(camera);
 
             CameraClearFlags clearFlags = camera.clearFlags;
             cmd.ClearRenderTarget(
@@ -132,22 +138,29 @@ namespace Seven.LunarRenderPipeline {
                 (clearFlags & CameraClearFlags.Color) != 0,
                 camera.backgroundColor
             );
+            context.ExecuteCommandBuffer(cmd);
+            cmd.Clear();
 
-            CameraData cameraData = CameraData.GetCameraData(camera);
+
+            // Culling
+            if ( !camera.TryGetCullingParameters(out ScriptableCullingParameters cullingParameters) ) {
+                return;
+            }
+            CullingResults cullingResults = context.Cull(ref cullingParameters);
+
             
-
             // Setup Lights
-            RenderingData renderingData = RenderingData.GetRenderingData(_asset, ref cameraData, ref cullingResults, true, cmd);
-            lightManager.ConfigureLights(cmd, ref renderingData);
+            CameraData cameraData = CameraData.GetCameraData(_asset, camera);
+            RenderingData renderingData = RenderingData.GetRenderingData(_asset, _renderer, ref cameraData, ref cullingResults, true, cmd);
+            LunarLightManager.ConfigureLights(cmd, ref renderingData);
 
             
             using (new ProfilingScope(cmd, renderProfilingSampler)) {
 
-                using (new ProfilingScope(null, setupCullingParametersProfilingSample)) {
-                    // _renderer.OnPreCullRenderPasses(in cameraData);
-                    // _renderer.SetupCullingParameters(ref cullingParameters, ref cameraData);
+                using (new ProfilingScope(null, setupCullingParametersProfilingSampler)) {
+                    _renderer.OnPreCullRenderPasses(in cameraData);
+                    _renderer.SetupCullingParameters(ref cullingParameters, ref cameraData, _asset);
                 }
-
                 context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
                 
@@ -161,37 +174,12 @@ namespace Seven.LunarRenderPipeline {
                     }
                 #endif
 
-                // SortingSettings sortingSettings = new(camera);
-                // DrawingSettings drawingSettings = new(forwardLightmodeId, sortingSettings) {
-                //     enableDynamicBatching = _asset.useSRPBatcher,
-                //     enableInstancing = _asset.useInstancing
-                // };
-
-                // FilteringSettings filteringSettings = FilteringSettings.defaultValue;
-            
-                // // Render opaque objects
-                // sortingSettings.criteria = SortingCriteria.CommonOpaque;
-                // filteringSettings.renderQueueRange = RenderQueueRange.opaque;
-                // context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
-
-                // // Render skybox if necessary
-                // if (camera.clearFlags == CameraClearFlags.Skybox && RenderSettings.skybox != null) {
-                //     context.DrawSkybox(camera);
-                // }
-
-                // // Render transparent objects
-                // sortingSettings.criteria = SortingCriteria.CommonTransparent;
-                // filteringSettings.renderQueueRange = RenderQueueRange.transparent;
-                // context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
-
-
                 _renderer.AddRenderPasses(ref renderingData);
 
-                _renderer.SetupRenderPasses(context, ref renderingData);
+                _renderer.ConfigureTarget(_cameraTargetHandle, _cameraTargetHandle);
 
                 _renderer.Execute(context, ref renderingData);
             }
-
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
 
@@ -200,26 +188,34 @@ namespace Seven.LunarRenderPipeline {
 
         protected override void Render(ScriptableRenderContext context, Camera[] cameras) {
 
-            // List<LunarRendererFeature> rendererFeatures = new List<LunarRendererFeature>() { 
-            //     ScriptableObject.CreateInstance<OpaqueRendererFeature>(),
-            //     ScriptableObject.CreateInstance<TransparentRendererFeature>(),
-            //     ScriptableObject.CreateInstance<SkyboxRendererFeature>(),
-            // };
-
             _renderer = new LunarRenderer(_asset.rendererFeatures);
+            RTHandles.Initialize(Screen.width, Screen.height);
 
             using (new ProfilingScope(null, beginFrameRenderingProfilingSampler)) {
                 BeginFrameRendering(context, cameras);
             }
 
+            GraphicsSettings.lightsUseLinearIntensity = QualitySettings.activeColorSpace == ColorSpace.Linear;
+            GraphicsSettings.lightsUseColorTemperature = true;
+            GraphicsSettings.defaultRenderingLayerMask = 0x00000001; // TODO : Make this a variable
+
             for (int i = 0; i < cameras.Length; ++i) {
                 Camera camera = cameras[i];
 
-                BeginCameraRendering(context, camera);
+                // if ( camera.cameraType == CameraType.Game ) {
 
-                RenderCamera(context, camera);
+                //     RenderCamera(context, camera);
 
-                EndCameraRendering(context, camera);
+                // } else {
+
+                    BeginCameraRendering(context, camera);
+
+                    RenderCamera(context, camera);
+
+                    EndCameraRendering(context, camera);
+
+                // }
+
             }
 
             using (new ProfilingScope(null, endFrameRenderingProfilingSampler)) {

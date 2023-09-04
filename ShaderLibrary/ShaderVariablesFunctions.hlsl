@@ -1,8 +1,7 @@
 #ifndef UNITY_SHADER_VARIABLES_FUNCTIONS_INCLUDED
 #define UNITY_SHADER_VARIABLES_FUNCTIONS_INCLUDED
 
-// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.deprecated.hlsl"
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl"
+// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl"
 
 float4 GetVertexPositionNDC(float4 positionCS) {
     float4 ndc = positionCS * 0.5f;
@@ -347,10 +346,10 @@ half3 MixFogColor(half3 fragColor, half3 fogColor, half fogFactor) {
 
 float3 MixFogColor(float3 fragColor, float3 fogColor, float fogFactor) {
     #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
-    if (IsFogEnabled()) {
+    // if (IsFogEnabled()) {
         float fogIntensity = ComputeFogIntensity(fogFactor);
         fragColor = lerp(fogColor, fragColor, fogIntensity);
-    }
+    // }
     #endif
     return fragColor;
 }

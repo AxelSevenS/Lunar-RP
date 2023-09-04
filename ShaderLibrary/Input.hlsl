@@ -8,7 +8,6 @@
 #define USE_STRUCTURED_BUFFER_FOR_LIGHT_DATA 0
 
 #include "Packages/com.seven.lunar-render-pipeline/ShaderLibrary/ShaderTypes.cs.hlsl"
-// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Deprecated.hlsl"
 
 // Must match: UniversalRenderPipeline.maxVisibleAdditionalLights
 #if defined(SHADER_API_MOBILE) && (defined(SHADER_API_GLES) || defined(SHADER_API_GLES30))

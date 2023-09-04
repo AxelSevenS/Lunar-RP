@@ -1,8 +1,13 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Seven.LunarRenderPipeline {
+namespace LunarRenderPipeline {
 
+    /// <summary>
+    ///     <para>
+    ///         Renders the Skybox.
+    ///     </para>
+    /// </summary>
     public sealed class SkyboxRenderPass : LunarRenderPass {
 
         private ProfilingSampler _skyboxSampler;
@@ -20,11 +25,6 @@ namespace Seven.LunarRenderPipeline {
                     context.DrawSkybox(renderingData.cameraData.camera);
                 }
             }
-        }
-
-        public override void FrameCleanup(CommandBuffer cmd) {
-            // cmd.ReleaseTemporaryRT(LunarRenderPipeline.cameraColorTextureId);
-            // cmd.ReleaseTemporaryRT(LunarRenderPipeline.cameraDepthTextureId);
         }
     }
 

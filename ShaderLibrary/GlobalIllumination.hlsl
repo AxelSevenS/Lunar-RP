@@ -426,9 +426,9 @@ void MixRealtimeAndBakedGI(inout Light light, half3 normalWS, inout half3 bakedG
 }
 
 void MixRealtimeAndBakedGI(inout Light light, half3 normalWS, inout half3 bakedGI, AmbientOcclusionFactor aoFactor) {
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_AMBIENT_OCCLUSION)) {
+    // if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_AMBIENT_OCCLUSION)) {
         bakedGI *= aoFactor.indirectAmbientOcclusion;
-    }
+    // }
 
     MixRealtimeAndBakedGI(light, normalWS, bakedGI);
 }
