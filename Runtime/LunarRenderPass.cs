@@ -8,15 +8,29 @@ namespace LunarRenderPipeline {
 
     public abstract class LunarRenderPass {
 
-        internal RTHandle _colorTargetHandle;
-        internal RTHandle _depthTargetHandle;
+        internal RenderTargetIdentifier _colorTargetHandle;
+        internal RenderTargetIdentifier _depthTargetHandle;
+
+        internal ClearFlag _clearFlag = ClearFlag.None;
+        internal Color _clearColor = Color.clear;
+
+        internal bool _useColorTarget = false;
+        internal bool _useDepthTarget = false;
 
         public abstract Dependency dependencies { get; }
         public abstract Event renderPassEvent { get; }
 
-        protected void ConfigureTarget(RTHandle colorTarget, RTHandle depthTarget) {
+        protected void ConfigureTarget(RenderTargetIdentifier colorTarget, RenderTargetIdentifier depthTarget) {
             _colorTargetHandle = colorTarget;
+            _useColorTarget = true;
+
             _depthTargetHandle = depthTarget;
+            _useDepthTarget = true;
+        }
+
+        protected void ConfigureClear(ClearFlag clearFlag, Color clearColor) {
+            _clearFlag = clearFlag;
+            _clearColor = clearColor;
         }
 
         public virtual void OnCameraPreCull(LunarRenderer renderer, in CameraData cameraData) { }

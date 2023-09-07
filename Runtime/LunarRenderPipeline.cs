@@ -35,7 +35,7 @@ namespace LunarRenderPipeline {
         public static readonly ProfilingSampler endFrameRenderingProfilingSampler = new($"{PIPELINE_NAME}.EndFrameRender");
 
 
-        public static readonly RTHandle _cameraTargetHandle = RTHandles.Alloc(BuiltinRenderTextureType.CurrentActive);
+        public static readonly RTHandle _cameraTargetHandle = RTHandles.Alloc(BuiltinRenderTextureType.CameraTarget);
 
 
         private LunarRenderer _renderer = null;
@@ -132,12 +132,8 @@ namespace LunarRenderPipeline {
 
             context.SetupCameraProperties(camera);
 
-            CameraClearFlags clearFlags = camera.clearFlags;
-            cmd.ClearRenderTarget(
-                (clearFlags & CameraClearFlags.Depth) != 0,
-                (clearFlags & CameraClearFlags.Color) != 0,
-                camera.backgroundColor
-            );
+            GetCameraClearParameters(camera, out bool clearDepth, out bool clearColor, out Color backgroundColor);
+            cmd.ClearRenderTarget( clearDepth, clearColor, backgroundColor );
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
 
@@ -221,6 +217,13 @@ namespace LunarRenderPipeline {
             using (new ProfilingScope(null, endFrameRenderingProfilingSampler)) {
                 EndFrameRendering(context, cameras);
             }
+        }
+
+        public void GetCameraClearParameters(Camera camera, out bool clearDepth, out bool clearColor, out Color backgroundColor) {
+            CameraClearFlags clearFlags = camera.clearFlags;
+            clearDepth = (clearFlags & CameraClearFlags.Depth) != 0;
+            clearColor = (clearFlags & CameraClearFlags.Color) != 0;
+            backgroundColor = camera.backgroundColor;
         }
     }
 }

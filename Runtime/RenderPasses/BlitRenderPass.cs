@@ -15,9 +15,10 @@ namespace LunarRenderPipeline {
         public override Event renderPassEvent => _passEvent;
         public override Dependency dependencies => _dependency;
 
-        // private readonly static int _blitTex = Shader.PropertyToID("_BlitTex");
-        // private RenderTargetIdentifier _blitTexId = new(_blitTex);
+        private readonly static string _blitTexName = "_BlitTex";
+        private readonly static int _blitTexID = Shader.PropertyToID(_blitTexName);
         private RTHandle _blitHandle;
+        // private RenderTargetIdentifier _blitTexId = new(_blitTexName);
 
 
         private readonly Event _passEvent;
@@ -33,8 +34,9 @@ namespace LunarRenderPipeline {
 
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor) {
             _blitSampler = new ProfilingSampler(nameof(BlitRenderPass));
-            _blitHandle = RTHandles.Alloc(cameraTextureDescriptor, name: "BlitHandle");
-            // cmd.GetTemporaryRT(_blitTex, cameraTextureDescriptor);
+            
+            _blitHandle = RTHandles.Alloc(_blitTexID, name: _blitTexName);
+            cmd.GetTemporaryRT(_blitTexID, cameraTextureDescriptor);
 
         }
 
@@ -45,7 +47,8 @@ namespace LunarRenderPipeline {
 
             using (new ProfilingScope(renderingData.commandBuffer, _blitSampler)) {
                 
-                Blitter.BlitCameraTexture(renderingData.commandBuffer, source, _blitHandle, _blitMaterial, 0);
+                renderingData.commandBuffer.Blit(source.nameID, _blitHandle, _blitMaterial, 0);
+                renderingData.commandBuffer.Blit(_blitHandle.nameID, source.nameID);
             }
 
             context.ExecuteCommandBuffer(renderingData.commandBuffer);
@@ -53,8 +56,8 @@ namespace LunarRenderPipeline {
         }
 
         public override void OnCameraCleanup(CommandBuffer cmd) {
-            RTHandles.Release(_blitHandle);
-            // cmd.ReleaseTemporaryRT(_blitTex);
+            _blitHandle.Release();
+            cmd.ReleaseTemporaryRT(_blitTexID);
 
         }
     }

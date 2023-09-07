@@ -308,15 +308,27 @@ namespace LunarRenderPipeline {
                 LunarRenderPass renderPass = block[i];
 
                 // Set the cmd RenderTarget to the renderPass' RenderTarget or the camera's RenderTarget if the renderPass doesn't have one.
-                RTHandle colorTargetHandle = renderPass._colorTargetHandle ?? _cameraColorTargetHandle;
-                RTHandle depthTargetHandle = renderPass._depthTargetHandle ?? _cameraDepthTargetHandle;
-                CoreUtils.SetRenderTarget(renderingData.commandBuffer, colorTargetHandle, depthTargetHandle, ClearFlag.None, Color.clear);
-                context.ExecuteCommandBuffer(renderingData.commandBuffer);
-                renderingData.commandBuffer.Clear();
+                if (renderPass._useColorTarget || renderPass._useDepthTarget) {
+                    RenderTargetIdentifier colorTargetHandle = renderPass._useColorTarget ? renderPass._colorTargetHandle : _cameraColorTargetHandle.nameID;
+                    RenderTargetIdentifier depthTargetHandle = renderPass._useDepthTarget ? renderPass._depthTargetHandle : _cameraDepthTargetHandle.nameID;
+                    ClearFlag clearFlag = renderPass._clearFlag;
+                    Color clearColor = renderPass._clearColor;
+
+                    CoreUtils.SetRenderTarget(renderingData.commandBuffer, colorTargetHandle, depthTargetHandle, clearFlag, clearColor);
+
+                    context.ExecuteCommandBuffer(renderingData.commandBuffer);
+                    renderingData.commandBuffer.Clear();
+                }
 
                 renderPass.Execute(context, ref renderingData);
                 context.ExecuteCommandBuffer(renderingData.commandBuffer);
                 renderingData.commandBuffer.Clear();
+
+                // if (renderPass._useColorTarget || renderPass._useDepthTarget) {
+                    CoreUtils.SetRenderTarget(renderingData.commandBuffer, _cameraColorTargetHandle.nameID, _cameraDepthTargetHandle.nameID, ClearFlag.None, Color.clear);
+                    context.ExecuteCommandBuffer(renderingData.commandBuffer);
+                    renderingData.commandBuffer.Clear();
+                // }
             }
         }
 
